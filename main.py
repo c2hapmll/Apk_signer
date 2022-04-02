@@ -119,7 +119,8 @@ def v2_singer(apk_path):
     test_keystore_path = os.path.join("Assets", "test.jks")
     out_apk = apk_path.replace(".apk", "_V2.apk").replace('\n', '').replace('\r', '')
 
-    cmd = "%s -jar %s sign -ks %s --ks-pass pass:123456 --out %s  %s" % (jre_path, apksigner_path, test_keystore_path, out_apk, apk_path.replace('\n', '').replace('\r', ''))
+    # cmd = "%s -jar %s sign -ks %s --ks-pass pass:123456 --out %s  %s" % (jre_path, apksigner_path, test_keystore_path, out_apk, apk_path.replace('\n', '').replace('\r', ''))
+    cmd = "apksigner sign -ks %s --ks-pass pass:123456 --out %s  %s" % (test_keystore_path, out_apk, apk_path.replace('\n', '').replace('\r', ''))
     res = execute_command(cmd)
     print(cmd)
     return res
