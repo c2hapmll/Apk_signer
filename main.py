@@ -28,7 +28,7 @@ def execute_command(cmd_string, cwd=None, timeout=None, shell=True, return_value
         :return return_code
         :exception 执行超时
     """
-
+    end_time = None
     if shell:
         cmd_string_list = cmd_string
     else:
@@ -98,29 +98,23 @@ def uninstall_apk(packagename):
 
 
 def v1_singer(apk_path):
-    jre_path = os.path.join("bin", "java.exe")
-    jarsinger_path = os.path.join("bin", "jarsigner.exe")
     test_keystore_path = os.path.join("Assets", "test.jks")
     out_apk = apk_path.replace(".apk", "_V1.apk").replace('\n', '').replace('\r', '')
 
-    # cmd = "%s -jar %s -verbose -keystore %s -signedjar %s %s -storepass 123456 mykey" % (
-    #     jre_path, jarsinger_path, test_keystore_path, out_apk, apk_path.replace('\n', '').replace('\r', ''))
     cmd = "jarsigner -verbose -keystore %s -signedjar %s %s -storepass 123456 mykey" % (
            test_keystore_path, out_apk, apk_path.replace('\n', '').replace('\r', ''))
-    print(cmd)
     # jarsigner -verbose -keystore [jks路径] -signedjar [V1签名完后apk文件输出路径] [需要签名的apk路径] [签名文件别名]
+
     res = execute_command(cmd)
     return res
 
 
 def v2_singer(apk_path):
-    jre_path = os.path.join("bin", "jre1.8.0_321", "bin", "java.exe")
-    apksigner_path = os.path.join("bin", "apksigner.jar")
     test_keystore_path = os.path.join("Assets", "test.jks")
     out_apk = apk_path.replace(".apk", "_V2.apk").replace('\n', '').replace('\r', '')
 
-    # cmd = "%s -jar %s sign -ks %s --ks-pass pass:123456 --out %s  %s" % (jre_path, apksigner_path, test_keystore_path, out_apk, apk_path.replace('\n', '').replace('\r', ''))
-    cmd = "apksigner sign -ks %s --ks-pass pass:123456 --out %s  %s" % (test_keystore_path, out_apk, apk_path.replace('\n', '').replace('\r', ''))
+    cmd = "apksigner sign -ks %s --ks-pass pass:123456 --out %s  %s"\
+          % (test_keystore_path, out_apk, apk_path.replace('\n', '').replace('\r', ''))
     res = execute_command(cmd)
     print(cmd)
     return res
@@ -129,8 +123,11 @@ def v2_singer(apk_path):
 def singer_check(apk_path):
     # apksigner verify -v [APK的路径]
     cmd = "apksigner verify -v %s" % apk_path
-    result = execute_command(cmd, return_value=True)
-    return result.decode()
+    result = execute_command(cmd, return_value=True).decode()
+    if result.find("WARNING"):
+        str_res = result[:result.find("WARNING")]
+        return str_res
+    return result
 
 
 def clear_apk_log():
@@ -145,13 +142,10 @@ def get_apk_log():
     desktop_path = get_desktop()
     log_path = os.path.join(desktop_path, "log_%s.h" % time.strftime('%H_%M_%S', time.localtime()))
     cmd = "adb logcat > %s" % log_path
-    # cmd = "adb logcat"
     if LOG_IF == 1:
-        p = subprocess.Popen(cmd,
-                             stdout=subprocess.PIPE,
-                             stderr=subprocess.PIPE,
-                             stdin=subprocess.PIPE,
-                             shell=True)
+        execute_command(cmd)
+    else:
+        pass
 
 
 def environmental_inspection():
