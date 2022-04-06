@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # coding:utf-8
 
+import configparser
 import re
 import os
 import subprocess
@@ -15,6 +16,8 @@ from PyQt5.QtWidgets import QApplication, QWidget, QDesktopWidget, QPushButton, 
 from PyQt5.QtGui import QIcon
 
 ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+cf = configparser.ConfigParser()
+cf.read("./config.ini")
 LOG_IF = 0
 
 
@@ -207,6 +210,7 @@ class Example(QWidget):
         self.label5 = None
         self.label6 = None
         self.label7 = None
+        self.label8 = None
         self.textEdit = None
         self.init_ui()  # 界面绘制交给InitUi方法
         self.setAcceptDrops(True)  # 允许控件接受文件
@@ -235,6 +239,9 @@ class Example(QWidget):
         self.label7 = QPushButton("环境检查")
         self.label7.clicked.connect(self.on_label7_func)
 
+        self.label8 = QPushButton("刷新自定义签名")
+        self.label8.clicked.connect(self.on_label8_func)
+
         self.textEdit = QTextEdit()
         self.textEdit.append("请拖动APK到此窗口")
         self.textEdit.setReadOnly(True)
@@ -246,6 +253,7 @@ class Example(QWidget):
         self.layout.addWidget(self.label5)
         self.layout.addWidget(self.label6)
         self.layout.addWidget(self.label7)
+        self.layout.addWidget(self.label8)
         self.layout.addWidget(self.textEdit)
 
         # 设置垂直盒布局的控件间距大小
@@ -306,6 +314,14 @@ class Example(QWidget):
             count += 1
         return 0
 
+    def on_label8_func(self):
+        jks_path = cf["global"]["jks_path"]
+        if len(jks_path) == 0:
+            print(type(jks_path))
+            self.textEdit.append("\n请检查config.ini文件！")
+        else:
+            self.textEdit.append("\n获取签名路径值成功！")
+
     # 控制窗口显示在屏幕中心的方法
     def center(self):
         # 获得窗口
@@ -327,7 +343,7 @@ class Example(QWidget):
             self.textEdit.append("\n应用路径为：%s" % self.paths)
             self.textEdit.append("应用包名为：%s" % self.packagename)
 
-    def dragLeaveEvent(self, event):
+    def dragLeaveEvent(self):
         self.setWindowTitle('鼠标放开了')
 
     def on_label6_func(self):
