@@ -343,7 +343,7 @@ class Example(QWidget):
             self.textEdit.append("\n应用路径为：%s" % self.paths)
             self.textEdit.append("应用包名为：%s" % self.packagename)
 
-    def dragLeaveEvent(self):
+    def dragLeaveEvent(self, event):
         self.setWindowTitle('鼠标放开了')
 
     def on_label6_func(self):
